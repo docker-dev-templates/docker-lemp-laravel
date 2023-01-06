@@ -1,9 +1,9 @@
 {
-    "name": "Backend",
+    "name": "Webapp",
     "dockerComposeFile": [
         "../docker-compose.yml"
     ],
-    "service": "backend",
+    "service": "webapp",
     "shutdownAction": "none",
     "extensions": [
         

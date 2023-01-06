@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# If you created a git submodule or your backend folder contains a recently 
+# If you created a git submodule or your Laravel web app source folder contains a recently 
 # cloned repo, this helper will install dependencies for Laravel packages based on composer.json file.
 # This script also will copy .env.example to .env from the Laravel source folder and generate a key app config to the env file.
 
@@ -22,16 +22,16 @@ fi
 
 source .devcontainer/.env
 
-FOLDER_NAME=${PROJECT_NAME}_backend
-BACKEND_PATH=${PWD}/${FOLDER_NAME}
+FOLDER_NAME=${PROJECT_NAME}_webapp
+WEBAPP_PATH=${PWD}/${FOLDER_NAME}
 
 function installDependencies() {
-    cp $BACKEND_PATH/.env.example $BACKEND_PATH/.env
-    docker run --rm -v $BACKEND_PATH:/app composer /bin/sh -c "composer install  && php artisan key:generate"
-    sudo chown -R $USER:$USER $BACKEND_PATH/vendor
+    cp $WEBAPP_PATH/.env.example $WEBAPP_PATH/.env
+    docker run --rm -v $WEBAPP_PATH:/app composer /bin/sh -c "composer install  && php artisan key:generate"
+    sudo chown -R $USER:$USER $WEBAPP_PATH/vendor
 }
 
-if [ -d "$BACKEND_PATH" ];
+if [ -d "$WEBAPP_PATH" ];
 then
     installDependencies
 else

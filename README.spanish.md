@@ -1,8 +1,11 @@
-# Herramienta de desarrollo de pilas LEMP utilizando Docker
+# Herramienta de desarrollo de pilas LEMP utilizando Docker (Sólo aplicación web Laravel)
 
-Este repositorio representa una rica plantilla para desplegar entornos de desarrollo utilizando dockers. Donde construimos una arquitectura separada de proyectos backend y frontend, con todos los servicios asociados a ellos listos para ejecutarse. Esto es muy conveniente, por ejemplo, en entornos de aplicación donde el backend sirve una API y el frontend la consume. 
+> **Nota:** Este proyecto es un **fork** del original [Docker Lemp Stack Development Tool](https://github.com/jraicr/docker-lemp-laravel-vue) 
+La principal diferencia es que la herramienta está originalmente concebida para trabajar con Laravel en el backend (API Rest) y Vue + Vite en el frontend. **Este Fork está pensado para trabajar únicamente con un proyecto Laravel monolítico.**
 
- Estamos utilizando ``Docker Compose`` con los servicios ``NGINX``, ``Node``, ``PHP-FPM``, ``MariaDB`` y ``phpMyAdmin``. Se está utilizando ``Laravel`` para el backend y ``Vue + Vite`` para el frontend. Cada servicio y fuente de aplicación está en contenedores utilizando dockers.
+Este repositorio representa una rica plantilla para desplegar entornos de desarrollo utilizando dockers. Estamos construyendo una aplicación web Laravel con todos los servicios asociados listos para ejecutarse.
+
+ Estamos utilizando ``Docker Compose`` con los servicios ``NGINX``, ``PHP-FPM``, ``MariaDB`` y ``phpMyAdmin``. Se está utilizando ``Laravel`` para desarrollar la aplicación web. Cada servicio y fuente de aplicación está en contenedores utilizando dockers.
 
 > **Nota:** Inicialmente este repositorio está pensado para ser usado como contenedores de desarrollo, una nueva forma de usar contenedores Dockers con entornos de desarrollo instalados dentro de ellos, y no en tu sistema principal, en un contexto de infraestructura de servicios muy similar al existente en entornos de producción.
 
@@ -30,7 +33,6 @@ Check Docker Compose compatibility :
 * [Nginx](https://hub.docker.com/_/nginx/)
 * [MariaDB](https://hub.docker.com/_/mariadb)
 * [PHPMyAdmin](https://hub.docker.com/r/phpmyadmin/phpmyadmin/)
-* [Node-envsubst](https://hub.docker.com/repository/docker/jraicr/node-envsubst)
 * [PHP](https://hub.docker.com/repository/docker/jraicr/php-xdebug-composer)
 
 Estos servicios utilizan los siguientes puertos.
@@ -42,22 +44,21 @@ Estos servicios utilizan los siguientes puertos.
 | Nginx      |  8000  |
 
 
-|       Servicio       |            URL                 |         Observaciones                                     |
-|----------------------|--------------------------------|-----------------------------------------------------------|
-| Frontend (Vue+Vite)  | http://localhost:8000          | Aplicación Frontend                                       |
-| Backend (Laravel)    | http://localhost:8000/api/     | Ruta API del Backend servido desde Artisan. (Desarrollo)  |           
-| Backend (Laravel)    | http://localhost:8001          | Backend servido desde FPM. (Producción)                   |
-| phpMyAdmin           | http://localhost:8080          |                                                           |
+|       Servicio       |            URL                 |         Observaciones                                          |
+|----------------------|--------------------------------|----------------------------------------------------------------|
+| Laravel Web App      | http://localhost:8000/api/     | Aplicación web de Laravel servido desde Artisan. (Desarrollo)  |           
+| Laravel Web App      | http://localhost:8001          | Aplicación web de Laravel servido desde FPM. (Producción)      |
+| phpMyAdmin           | http://localhost:8080          |                                                                |
 
-- Nginx se está utilizando para hacer proxy inverso para enrutar los servicios de backend, frontend y phpMyAdmin.
-- El backend está configurado para servirse en el entorno de desarrollo tanto desde Artisan como desde FPM. Esto es para comprobar que funciona todo correctamente y poder realizar pruebas en el entorno de desarrollo. En la ruta ```.devcontainer/backend/docker-entrypoint.sh``` puedes configurar como servir la aplicación durante el desarrollo.
+- Nginx se está utilizando para hacer proxy inverso y enrutar los servicios de la aplicación web de Laravel y phpMyAdmin.
+- La aplicación web Laravel está configurada para servirse en el entorno de desarrollo tanto desde Artisan como desde FPM. Esto es para comprobar que funciona todo correctamente y poder realizar pruebas en el entorno de desarrollo. En la ruta ```.devcontainer/webapp/docker-entrypoint.sh``` puedes configurar como servir la aplicación durante el desarrollo.
 
 ## 3. ¿Cómo usar este repositorio?
 Aquí tienes algunas pautas resumidas para usar este repositorio, tanto para empezar un nuevo proyecto así como incluir tus proyectos Laravel y Vue en esta arquitectura.
 
 ### 3.1. Clona el repositorio
 ```sh
-git clone https://github.com/jraicr/docker-lemp-laravel-vue.git myProject
+git clone https://github.com/jraicr/docker-lemp-laravel.git myProject
 ```
 
 Después de clonar puedes cambiar o eliminar el origen remoto de este repositorio y configurar el tuyo propio para el proyecto. Cómo usar git está más allá del alcance de este documento.
@@ -103,18 +104,13 @@ En segundo lugar, debes editar el archivo de entorno docker compose para configu
 
 :information_source: **Ver [configuración](#4-configuración)** para más detalles.
 
-### 3.3. Genera nuevos proyectos Laravel y Vue
+### 3.3. Genera un nuevo proyecto de Laravel
 Para generar un nuevo proyecto de Laravel usa este comando desde la raiz del proyecto:
 ```sh
-sh -c bash_tools/scripts/generate_first_time_backend.sh
+sh -c bash_tools/scripts/generate_new_laravel_project.sh
 ```
- 
-Para generar un nuevo proyecto de Vue usa este comando desde la raiz del proyecto:
-```sh
-sh -c bash_tools/scripts/generate_first_time_frontend.sh
-``` 
 
-:information_source: **Ver [proyectos frontend y backend](#6-proyectos-frontend-y-backend)** para más detalles, incluso si necesitas añadir proyectos existentes.
+:information_source: **Ver [el proyecto Laravel](#6-el-proyecto-laravel)** para más detalles, incluso si necesitas añadir proyectos existentes.
 
 ### 3.4. Despliega los contenedores de desarrollo
 - **Compose up**: Comando para levantar los contenedores.
@@ -129,7 +125,7 @@ docker compose -f ".devcontainer/docker-compose.yml" down
 
 Si estás utilizando **VS Code** como IDE principal, puedes abrir la carpeta del proyecto y hacer clic con el botón derecho del mouse en el archivo ```docker-compose``` para gestionarlo. Esto requiere tener instalado [Docker VSCode extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker). Después de levantar los contenedores deberías ser capaz de conectarte a los servicios web en tu navegador web.
 
-Para empezar a trabajar dentro de un contenedor desde ``VS Code`` necesitarás la extensión [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) **(si estás en windows necesitarás WSL 2)** puedes pulsar F1 y escribir ```Attach to running container``` y selecciona el contenedor frontend o backend para empezar a trabajar dentro de él. También puedes hacerlo desde la vista Dockers en VS Code y haciendo click derecho sobre el contenedor en el que te interese trabajar y seleccionar ```Attach Visual Studio Code```.
+Para empezar a trabajar dentro de un contenedor desde ``VS Code`` necesitarás la extensión [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) **(si estás en windows necesitarás WSL 2)** puedes pulsar F1 y escribir ```Attach to running container``` y selecciona el contenedor webapp para empezar a trabajar dentro de él. También puedes hacerlo desde la vista Dockers en VS Code y haciendo click derecho sobre el contenedor en el que te interese trabajar y seleccionar ```Attach Visual Studio Code```.
 
 :information_source: **Ver [desarrollando dentro de un contenedor](https://code.visualstudio.com/docs/devcontainers/containers)** para más detalles.
 
@@ -163,13 +159,13 @@ El archivo de variables de entorno utilizado para docker-compose y los contenedo
 ### DOCKER-COMPOSE ENV ###
 # ℹ https://docs.docker.com/compose/environment-variables/#the-env-file
 
-PROJECT_NAME=ProjectName # ✏️ Writes here your project name
+PROJECT_NAME=curso-laravel # ✏️ Writes here your project name
 COMPOSE_PROJECT_NAME=${PROJECT_NAME}_devcontainer
 
 ### NGINX Webserver ###
-# Port to connect to Frontend and Backend services routed by nginx 
-FRONTEND_BACKEND_EXTERNAL_PORT=8000  # (http://localhost:8000)
-BACKEND_FPM_EXTERNAL_PORT=8001       # This is the backend served with FPM (http://localhost:8001) 
+# Port to connect to Web App service routed by nginx 
+WEB_APP_EXTERNAL_PORT=8000           # (http://localhost:8000)
+WEB_APP_FPM_EXTERNAL_PORT=8001       # This is the Web App served with FPM (http://localhost:8001) 
 
 ### MariaDB ###
 # Port to connect to the database server
@@ -181,24 +177,17 @@ PHPMYADMIN_EXTERNAL_PORT=8080       # (http://localhost:8080)
 
 # It is recommended to not touch internal ports in the following docker configuration
 
-### Backend ###
-# Port used by the backend container for internal docker network
-BACKEND_EXPOSE_PORT=8080 
-BACKEND_FPM_EXPOSE_PORT=9001
-
-### Frontend ###
-# Port used by the frontend container for internal docker network
-FRONTEND_EXPOSE_PORT=8080 
-NODE_DEVELOPMENT=development
+### WEB APP ###
+# Port used by the Web App container for internal docker network
+WEB_APP_EXPOSE_PORT=8080 
+WEB_APP_FPM_EXPOSE_PORT=9001
 ```
 
-> **Nota:** Asegúrate de cambiar el **nombre del proyecto** en el archivo ```.devcontainer/.env```. Muchos parámetros de docker se construyen a partir de esta variable de entorno. Además, el código fuente de los proyectos Laravel y Vue se ubicarán en carpetas con los nombres: ```projectName_backend``` y ```projectName_frontend```.
+> **Nota:** Asegúrate de cambiar el **nombre del proyecto** en el archivo ```.devcontainer/.env```. Muchos parámetros de docker se construyen a partir de este nombre. Además, el código fuente del proyecto laravel se ubicará en carpetas con el nombre: ```projectName_webapp``.
 
 En las secciones siguientes vamos a configurar variables que serán pasadas a sus respectivos contenedores usando su propio fichero .env ubicados en: 
 
-
-- ```.devcontainer/backend/.backend.env```
-- ```.devcontainer/frontend/.frontend.env```
+- ```.devcontainer/webapp/.webapp.env```
 - ```devcontainer/mariadb/.mariadb.env```
 - ```.devcontainer/webserver/.webserver.env```
 
@@ -216,9 +205,8 @@ La variable más importante a tener en cuenta es ```NGINX_HOST```, por defecto e
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Environment Variables for NGINX Docker Container
 CONFIG_NGINX_HOST=localhost # ✏️ You can edit this (e.g.: NGINX_HOST=rai.ddns.net)
-CONFIG_FRONTEND_CONNECTION_PORT=${FRONTEND_EXPOSE_PORT}
-CONFIG_BACKEND_CONNECTION_PORT=${BACKEND_EXPOSE_PORT}
-CONFIG_BACKEND_FPM_CONNECTION_PORT=${BACKEND_FPM_EXPOSE_PORT}
+CONFIG_WEB_APP_CONNECTION_PORT=${WEB_APP_EXPOSE_PORT}
+CONFIG_WEB_APP_FPM_CONNECTION_PORT=${WEB_APP_FPM_EXPOSE_PORT}
 ```
 
 ### 4.3. Variables de entorno en el contenedor de base de datos (MariaDB)
@@ -244,19 +232,19 @@ CONFIG_MARIADB_DATABASE=${PROJECT_NAME}_bd
 
 La base de datos se creará utilizando ```PROJECT_NAME``` como prefijo.
 
-### 4.4. Variables de entorno en el contenedor backend (Laravel)
+### 4.4. Variables de entorno en el contenedor webapp (Laravel)
 <details>
- <summary>Mostrar sección de configuración del backend</summary>
+ <summary>Mostrar sección de configuración del contenedor webapp</summary>
 
 ```sh
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#                   BACKEND CONTAINER ENV VARS                        #
+#                   WEB_APP CONTAINER ENV VARS                        #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-### Environment Variables for Backend container ###
+### Environment Variables for Web App container ###
 
 ### Docker Entrypoint Configuration ###
-CONFIG_BACKEND_LISTENING_PORT=${BACKEND_EXPOSE_PORT} # Serves Laravel project using artisan in this port
-CONFIG_BACKEND_FPM_LISTENING_PORT=${BACKEND_FPM_EXPOSE_PORT} # Serves Laravel project using FPM in this port
+CONFIG_WEB_APP_LISTENING_PORT=${WEB_APP_EXPOSE_PORT} # Serves Laravel project using artisan in this port
+CONFIG_WEB_APP_FPM_LISTENING_PORT=${WEB_APP_FPM_EXPOSE_PORT} # Serves Laravel project using FPM in this port
 
 ### PHP OPcache Configuration
 CONFIG_PHP_OPCACHE_ENABLE=1
@@ -338,41 +326,38 @@ LARAVEL_OCTANE_SERVER=swoole
 </details>
  ‎
 
-En este bloque puedes configurar las variables de entorno que necesita el contenedor backend y que utiliza Laravel. Este último ignorará los valores del fichero ```.env``` original, ubicado en la carpeta de código fuente de Laravel, si configuramos el mismo nombre de variable en nuestro fichero. Además de esto, exponemos algunas variables para configurar la extensión ```OPcache``` de php.
+En este bloque puedes configurar las variables de entorno que necesita el contenedor webapp y que utiliza Laravel. Este último ignorará los valores del fichero ```.env``` original, ubicado en la carpeta de código fuente de Laravel, si configuramos el mismo nombre de variable en nuestro fichero. Además de esto, exponemos algunas variables para configurar la extensión ```OPcache``` de php.
 
 > **Nota:** La clave APP que Laravel genera con artisan no se configurará en este fichero y Laravel la leerá de su propio .env. Hacemos esto para ahorrarnos pasos de configuración, cuando Laravel ya rellena estos datos por nosotros.
 
 - [Más información sobre la configuración de Laravel](https://laravel.com/docs/9.x/configuration)
 - [Más información sobre la configuración de OPcache](https://www.php.net/manual/es/opcache.configuration.php)
 
-### 4.5. Variables de entorno en el contenedor frontend (Vue + Vite)
-Por el momento no es necesario prestar atención a la configuración en esta sección, ya que se utiliza para transmitir algunos datos que ya se encuentran en el archivo de variables de entorno de ```docker compose```. 
-
 ### 4.6. Configuración de NGINX
 El archivo de configuración se encuentra en ```.devcontainer/webserver/config/etc/nginx/conf.d/default.conf.template.nginx ```. Si necesitas cambiar cualquier cosa de su configuración lo puedes hacer desde aquí.
 
 ### 4.7. Configuración de PHP
-Puedes encontrar los archivos de configuración de php en el directorio ```.devcontainer/backend/config/etc/php/conf.d``` En esta ruta puedes configurar el archivo ```php.ini```, así como el puerto al que conecta ```XDebug```, entre otras opciones. Algunos de los valores de configuración de ```OPcache``` se recogen desde las variables de entorno configuradas en ```.devcontainer/.env```
+Puedes encontrar los archivos de configuración de php en el directorio ```.devcontainer/webapp/config/etc/php/conf.d``` En esta ruta puedes configurar el archivo ```php.ini```, así como el puerto al que conecta ```XDebug```, entre otras opciones. Algunos de los valores de configuración de ```OPcache``` se recogen desde las variables de entorno configuradas en ```.devcontainer/.env```
 
-Los archivos de configuración de la ruta ```.devcontainer/backend/config/etc/php-fpm.d/``` corresponden al servicio [FPM](https://www.stackscale.com/es/blog/php-fpm-php-webs-alto-trafico/) de PHP. 
+Los archivos de configuración de la ruta ```.devcontainer/webapp/config/etc/php-fpm.d/``` corresponden al servicio [FPM](https://www.stackscale.com/es/blog/php-fpm-php-webs-alto-trafico/) de PHP. 
 
-Eres libre de añadir más archivos de configuración a PHP montando un nuevo volumen - dentro del contenedor de backend - en el archivo  ```docker-compose.yml```. Puede ver los actuales a modo de ejemplo:
+Eres libre de añadir más archivos de configuración a PHP montando un nuevo volumen - dentro del contenedor de webapp - en el archivo  ```docker-compose.yml```. Puede ver los actuales a modo de ejemplo:
 
 ```yaml
- backend:
+ webapp:
   (...)
   volumes:
-      - ../${PROJECT_NAME}_backend:/app # Laravel Project
-      - ./backend/config/etc/php/conf.d/php.ini-development.ini:/usr/local/etc/php/php.ini # PHP Config
-      - ./backend/config/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf # PHP-FPM Config
-      - ./backend/config/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf # PHP-FPM Config
-      - ./backend/config/etc/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini # PHP XDebug Config
-      - ./backend/config/etc/php/conf.d/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini # PHP OPcache config
-      - ./backend/docker-entrypoint.sh:/docker-entrypoint.sh # Backend Docker entrypoint script
+      - ../${PROJECT_NAME}_webapp:/app # Laravel Project
+      - ./webapp/config/etc/php/conf.d/php.ini-development.ini:/usr/local/etc/php/php.ini # PHP Config
+      - ./webapp/config/etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf # PHP-FPM Config
+      - ./webapp/config/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf # PHP-FPM Config
+      - ./webapp/config/etc/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini # PHP XDebug Config
+      - ./webapp/config/etc/php/conf.d/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini # PHP OPcache config
+      - ./webapp/docker-entrypoint.sh:/docker-entrypoint.sh # Webapp Docker entrypoint script
   (...)    
 ``` 
 
-El archivo ```.devcontainer/backend/docker-entrypoint.sh``` se ejecuta nada más levantar el contenedor de backend. Por defecto la aplicación de Laravel se sirve mediante Artisan y FPM al mismo tiempo, posteriomente se enrutan ambos con nginx. Puedes editar el archivo para decidir como servir la aplicación durante el desarrollo.
+El archivo ```.devcontainer/webapp/docker-entrypoint.sh``` se ejecuta nada más levantar el contenedor webapp. Por defecto la aplicación de Laravel se sirve mediante Artisan y FPM al mismo tiempo, posteriomente se enrutan ambos con nginx. Puedes editar el archivo para decidir como servir la aplicación durante el desarrollo.
 
 Recuerda que en entornos de producción lo deseable es servir la aplicación de Laravel con FPM u otras opciones como Laravel Octane con Swoole.
 
@@ -389,59 +374,42 @@ Cada vez que se levante el contenedor de ```mariaDB``` se ejecutará automaticam
 
 Con el tiempo iré añadiendo a este proyecto otras opciones de docker compose, más adecuadas para el despliegue en entornos de producción. Siéntete libre de adaptar compose para entornos de producción pero ten en cuenta las advertencias de seguridad, como evitar despliegues de phpMyAdmin.
 
-## 6. Proyectos frontend y backend
-Las imágenes utilizadas en los contenedores frontend y backend sirven para trabajar con Laravel y Vue + Vite, aunque los servicios de ambos proyectos coexisten en el mismo servidor proxy nginx, son proyectos que deberían estar en repositorios completamente diferentes. 
+## 6. El proyecto Laravel
+La imagen utilizada en el contenedor webapp sirve para trabajar con la última versión del framework Laravel.
 
-Antes de componer los contenedores es importante tener listas las carpetas con ambos proyectos, ya que los contenedores frontend y backend se montarán estas carpetas como volúmenes.
+Antes de componer los contenedores es importante tener preparada la carpeta con el proyecto, ya que el contenedor webapp montará esta carpeta como un volumen.
 
-### 6.1. Generación de proyectos por primera vez
-Puede generar nuevos proyectos Laravel y Vue utilizando los scripts bash ```.bash_tools/scripts/generate_first_time_backend.sh``` y ```.bash_tools/scripts/generate_first_time_frontend.sh```. Se utilizan imágenes de Docker para generar los proyectos, gracias a esto no necesitarás tener ninguna dependencia asociada a ellos en tu sistema.
+### 6.1. Generación del proyecto por primera vez
+Puede generar un nuevo proyecto de Laravel utilizando el script bash ```.bash_tools/scripts/generate_new_laravel_project.sh```. Utilizará una imagen docker para generarlo.
 
 - Para generar un **nuevo proyecto de Laravel** usa este comando desde la raíz del proyecto:
 
 ```sh
-sh -c bash_tools/scripts/generate_first_time_backend.sh
+sh -c bash_tools/scripts/generate_new_laravel_project.sh
 ```
- 
-- Para generar un **nuevo proyecto de Vue + Vite** usa este comando desde la raíz del proyecto:
+
+### 6.2. Incluir un proyecto ya existente
+Puedes añadir tu proyecto creando submódulos git que apunten a este repositorio. Recuerda que la carpeta debe llamarse ```${PROJECT_NAME}_webapp```. Como se ha dicho antes, ```PROJECT_NAME``` se puede establecer en ```./devcontainer/.env```.
+
+Escribe este comando para crear el submódulo de git desde la raíz del proyecto:
 
 ```sh
-sh -c bash_tools/scripts/generate_first_time_frontend.sh
+git submodule add https://github.com/user/MyLaravelAPP ProjectName_webapp
 ```
 
-Es importante tener en cuenta que el fichero de configuración de vite en ```.devcontainer/config/vite.config.template.js``` está montado en el contenedor frontend usando volúmenes. Cuando el contenedor frontend arranca, copia el archivo a ```${PROJECT_NAME}_frontend/vite.config.js``` usando ```envsubst``` para convertir las variables de entorno a los datos a los que apuntan. Así que si vas a cambiarlo debes reiniciar el contenedor para que surtan efecto.
+Como el repositorio donde se encuentra el proyecto no incluye los ficheros de dependencias que necesita (o al menos no debería), hemos preparado un script que te ayudará con esta tarea.
 
-Cómo trabajar con Laravel o Vue está fuera del alcance de este documento.
-
-### 6.2. Incluir proyectos Laravel y Vue ya existentes
-Puedes añadir tus proyectos creando submódulos de git que apunten a ellos. Recuerda que los nombres de las carpetas deben ser ```${PROJECT_NAME}_backend``` y ```${PROJECT_NAME}_frontend```. Como se ha indicado anteriormente, ```PROJECT_NAME``` puede configurarse en ```./devcontainer/.env```.
-
-Escribe estos comandos para crear submódulos git desde la raíz del proyecto:
+- Ejecuta este comando desde la raíz del proyecto para instalar las dependencias de **composer** necesarias para Laravel:
 
 ```sh
-git submodule add https://github.com/user/frontAPP ProjectName_frontend
-git submodule add https://github.com/user/backAPI ProjectName_backend
+sh -c bash_tools/scripts/install_composer_dependencies.sh
 ```
 
-Como los repositorios en los que se encuentran estos proyectos no incluyen los archivos de dependencias que necesitan (o al menos no debería), hemos preparado unos scripts que te ayudarán con esta tarea. 
+También copiará el archivo de configuración de Laravel ```.env.example``` a ```.env``` para posteriormente generar una clave API para la aplicación.
 
-- Ejecuta este comando desde la raíz del proyecto para instalar las dependencias del **backend**:
+> **Nota:** No ejecutes estos scripts si tu proyecto ya se generó anteriormente con ```generate_new_laravel_project.sh``` ya que este se genera con todas las dependencias instaladas.
 
-```sh
-sh -c bash_tools/scripts/install_dependencies_backend.sh
-```
-
-- Ejecuta este comando desde la raíz del proyecto para instalar las dependencias del **frontend**:
-
-```sh
-sh -c bash_tools/scripts/install_dependencies_frontend.sh
-```
-
-En el caso del backend también copiará el archivo de configuración de Laravel ```.env.example``` a ```.env``` para posteriormente generar una clave API para la aplicación.
-
-> **Nota:** No ejecutes estos scripts si tus proyectos ya fueron generados anteriormente con ```generate_first_time_backend.sh``` o ```generate_first_time_frontend.sh```ya que estos se generan con todas las dependencias que necesitan.
-
-> **Monorepositorios:** Creo que es posible trabajar en un [monorepo](https://www.atlassian.com/es/git/tutorials/monorepos) usando esta configuración, en lugar de usar submódulos git, ya que cada proyecto está aislado en una carpeta y con sus propias herramientas de entorno basadas en dockers. Por lo tanto, para hacerlo sólo tienes que poner en el proyecto el código fuente en las carpetas del frontend y del backend y permíteles convivir en un único repositorio de git. Depende de ti decidir cómo gestionar el flujo de trabajo con git y tus proyectos.
+> **Monorepositorios:** Creo que es posible trabajar en un [monorepo](https://www.atlassian.com/es/git/tutorials/monorepos) usando esta configuración, en lugar de usar submódulos git, ya que el proyecto está aislado en una carpeta y con sus propias herramientas de entorno basadas en docker. Por lo tanto, para hacer esto sólo tienes que poner en el proyecto el código fuente de tu proyecto Laravel. Depende de ti decidir cómo gestionar el flujo de trabajo con git y tu proyecto.
 
 ## 7. Contribuir a este repositorio
 Siéntete libre de contribuir a este proyecto con cualquier cambio. Haz un fork del repositorio y clónalo en tu ordenador, haz los cambios que creas oportunos y crea un [pull request](https://www.freecodecamp.org/espanol/news/como-hacer-tu-primer-pull-request-en-github/).

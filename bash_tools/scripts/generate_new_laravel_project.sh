@@ -20,18 +20,18 @@ fi
 
 source .devcontainer/.env
 
-FOLDER_NAME=${PROJECT_NAME}_backend
-BACKEND_PATH=${PWD}/${FOLDER_NAME}
+FOLDER_NAME=${PROJECT_NAME}_webapp
+WEBAPP_PATH=${PWD}/${FOLDER_NAME}
 
 function generateProject () {
-    echo -e "\nSe va a generar un nuevo proyecto Laravel en $BACKEND_PATH\n"
-    docker run --rm -v $BACKEND_PATH:/app composer create-project laravel/laravel .
-    sudo chown -R $USER:$USER $BACKEND_PATH
+    echo -e "\nSe va a generar un nuevo proyecto Laravel en $WEBAPP_PATH\n"
+    docker run --rm -v $WEBAPP_PATH:/app composer create-project laravel/laravel .
+    sudo chown -R $USER:$USER $WEBAPP_PATH
 
-    echo -e "\n✔️  Proyecto Laravel creado en $BACKEND_PATH\n"
+    echo -e "\n✔️  Proyecto Laravel creado en $WEBAPP_PATH\n"
 }
 
-if [ -d "$BACKEND_PATH" ];
+if [ -d "$WEBAPP_PATH" ];
 then
     echo -e "\n❌ Advertencia: Ya existe un directorio llamado $FOLDER_NAME.\n No se generará el proyecto.\n"
 else

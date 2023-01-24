@@ -7,8 +7,8 @@ ARG uid
 
 # Labels
 LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.name="php-xdebug-composer"
-LABEL org.label-schema.description="Image from php:fpm-alpine with Xdebug, Composer and PHP Extensions requeriments for default Laravel project."
+LABEL org.label-schema.name="nodejs-php-xdebug-composer"
+LABEL org.label-schema.description="Image from php:fpm-alpine with Xdebug, Composer, PHP Extensions, and nodejs requeriments for default Laravel project."
 
 RUN apk --no-cache update && apk --no-cache upgrade
 
@@ -25,6 +25,9 @@ RUN apk --no-cache add \
     unzip \
     git \
     curl
+
+# Get Node and NPM
+RUN apk add --update nodejs npm
     
 RUN rm -rf /tmp/* && \
     rm -rf /var/cache/apk/*
@@ -46,6 +49,7 @@ RUN addgroup $user
 RUN addgroup $user $user
 RUN mkdir -p /home/$user/.composer && \
     chown -R $user:$user /home/$user
+
 
 RUN mkdir /app
 USER $user

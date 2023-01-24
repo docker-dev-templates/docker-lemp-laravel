@@ -37,7 +37,7 @@ Check Docker Compose compatibility :
 * [Nginx](https://hub.docker.com/_/nginx/)
 * [MariaDB](https://hub.docker.com/_/mariadb)
 * [PHPMyAdmin](https://hub.docker.com/r/phpmyadmin/phpmyadmin/)
-* [PHP](https://hub.docker.com/repository/docker/jraicr/php-xdebug-composer)
+* [PHP](https://hub.docker.com/repository/docker/jraicr/nodejs-php-xdebug-composer)
 
 This services use the following ports.
 
